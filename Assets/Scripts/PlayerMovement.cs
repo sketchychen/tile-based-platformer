@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -14,7 +15,6 @@ public class PlayerMovement : MonoBehaviour
     Vector2 moveInput;
     CapsuleCollider2D myBodyCollider;
     BoxCollider2D myFeetCollider;
-
     float moveSpeed = 5f;
     float jumpSpeed = 10f;
     float climbSpeed = 5f;
@@ -30,6 +30,9 @@ public class PlayerMovement : MonoBehaviour
     bool climbingState = false;
     bool disabledState = false;
 
+    [Header("Game Management")]
+    float reloadDelay = 3.0f;
+
 
     void Awake()
     {
@@ -38,7 +41,6 @@ public class PlayerMovement : MonoBehaviour
         myRigidbody = GetComponent<Rigidbody2D>();
         myBodyCollider = GetComponent<CapsuleCollider2D>();
         myFeetCollider = GetComponent<BoxCollider2D>();
-
     }
 
     void Update()
@@ -67,7 +69,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    void OnCollisionEnter2D(Collision2D other)
     {
         if (!aliveState) { return; }
         if (!damagedState && other.gameObject.CompareTag("Enemy"))
@@ -79,7 +81,6 @@ public class PlayerMovement : MonoBehaviour
     void TakeDamage(GameObject enemy)
     {
         hp--;
-
         // small bounce from damage impact
         Rigidbody2D enemyRigidbody = enemy.GetComponent<Rigidbody2D>();
         Vector2 impulse = new Vector2 (Mathf.Sign(enemyRigidbody.velocity.x) * 5, 5);
@@ -114,7 +115,14 @@ public class PlayerMovement : MonoBehaviour
     void Die()
     {
         aliveState = false;
+        disabledState = true;
         myAnimator.SetTrigger("Dying");
+        Invoke("ReloadScene", reloadDelay);
+    }
+
+    void ReloadScene()
+    {
+        SceneManager.LoadScene(0);
     }
 
     void Run()
