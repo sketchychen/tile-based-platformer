@@ -10,6 +10,10 @@ public class PlayerMovement : MonoBehaviour
     Animator myAnimator;
     SpriteRenderer myRenderer;
 
+    [Header("GameObjects")]
+    [SerializeField] GameObject bullet;
+    [SerializeField] Transform gun;
+
     [Header("Kinetics")]
     Rigidbody2D myRigidbody;
     Vector2 moveInput;
@@ -29,6 +33,8 @@ public class PlayerMovement : MonoBehaviour
     bool damagedState = false;
     bool climbingState = false;
     bool disabledState = false;
+    bool aimingState = false;
+    bool shootingState = false;
 
     [Header("Game Management")]
     float reloadDelay = 3.0f;
@@ -52,6 +58,13 @@ public class PlayerMovement : MonoBehaviour
         FlipSprite();
     }
 
+    void OnFire(InputValue value) {
+        if (!aliveState) { return; }
+        Debug.Log("OnFire");
+        // TakeAim();
+        TakeShot();
+    }
+
     void OnMove(InputValue value)
     {
         if (!aliveState) { return; }
@@ -61,7 +74,7 @@ public class PlayerMovement : MonoBehaviour
     void OnJump(InputValue value)
     {
         if (!aliveState) { return; }
-        if (!IsTouchingPlatform()) { return; }
+        if (!IsTouchingGround()) { return; }
 
         if (value.isPressed)
         {
@@ -72,21 +85,45 @@ public class PlayerMovement : MonoBehaviour
     void OnCollisionEnter2D(Collision2D other)
     {
         if (!aliveState) { return; }
-        if (!damagedState && other.gameObject.CompareTag("Enemy"))
+        if (!damagedState && IsTouchingDamage())
         {
-            TakeDamage(other.gameObject);
+            DamageRecoil(other.gameObject);
+            TakeDamage();
         }
     }
 
-    void TakeDamage(GameObject enemy)
+    void TakeAim()
     {
-        hp--;
-        // small bounce from damage impact
-        Rigidbody2D enemyRigidbody = enemy.GetComponent<Rigidbody2D>();
-        Vector2 impulse = new Vector2 (Mathf.Sign(enemyRigidbody.velocity.x) * 5, 5);
+        myAnimator.SetBool("isShooting", true);
+        myAnimator.enabled = false;
+    }
+
+    void TakeShot()
+    {
+        myAnimator.SetBool("isShooting", true);
+        myAnimator.enabled = true;
+        Instantiate(bullet, gun.position, transform.rotation);
+    }
+
+    void DamageRecoil(GameObject gameObject)
+    {
+        Vector2 impulse;
+        if (!HasHorizontalVelocity() && gameObject.CompareTag("Enemy"))
+        {
+            Rigidbody2D enemyRigidBody = gameObject.GetComponent<Rigidbody2D>();
+            impulse = new Vector2 (Mathf.Sign(enemyRigidBody.velocity.x) * 5, 5);
+        }
+        else
+        {
+            impulse = new Vector2 (Mathf.Sign(myRigidbody.velocity.x) * -5, 5);
+        }
         myRigidbody.velocity = new Vector2 (0, 0);
         myRigidbody.AddForce(impulse, ForceMode2D.Impulse);
+    }
 
+    void TakeDamage()
+    {
+        hp--;
         if (hp > 0)
         {
             StartCoroutine(SetTimerDamagedState(3.0f));
@@ -188,9 +225,16 @@ public class PlayerMovement : MonoBehaviour
         return myBodyCollider.IsTouchingLayers(climbMask) || myFeetCollider.IsTouchingLayers(climbMask);
     }
 
-    bool IsTouchingPlatform()
+    bool IsTouchingGround()
     {
-        return myFeetCollider.IsTouchingLayers(LayerMask.GetMask("Platform"));
+        LayerMask groundLayers = LayerMask.GetMask("Platform", "Hazard");
+        return myFeetCollider.IsTouchingLayers(groundLayers);
+    }
+
+    bool IsTouchingDamage()
+    {
+        LayerMask damageLayers = LayerMask.GetMask("Enemy", "Hazard");
+        return myBodyCollider.IsTouchingLayers(damageLayers) || myFeetCollider.IsTouchingLayers(damageLayers);
     }
 
     IEnumerator SetTimerDamagedState(float seconds)

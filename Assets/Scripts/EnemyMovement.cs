@@ -25,10 +25,8 @@ public class EnemyMovement : MonoBehaviour
 
     void OnTriggerExit2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Platform"))
-        {
-            moveSpeed = -moveSpeed;
-        }
+        Debug.Log("OnTriggerExit");
+        moveSpeed = -moveSpeed;
     }
 
     void MoveEnemy()
