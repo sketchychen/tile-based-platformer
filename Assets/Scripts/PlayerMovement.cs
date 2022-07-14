@@ -60,7 +60,6 @@ public class PlayerMovement : MonoBehaviour
 
     void OnFire(InputValue value) {
         if (!aliveState) { return; }
-        Debug.Log("OnFire");
         // TakeAim();
         TakeShot();
     }
