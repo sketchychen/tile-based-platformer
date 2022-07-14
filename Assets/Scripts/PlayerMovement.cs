@@ -29,12 +29,12 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Player Condition Boolean")]
     /* State Entry => State Changes => State Exit => State Reversion */
-    bool aliveState = true;
-    bool damagedState = false;
-    bool climbingState = false;
-    bool disabledState = false;
-    bool aimingState = false;
-    bool shootingState = false;
+    bool isAlive = true;
+    bool isDamaged = false;
+    bool isClimbing = false;
+    bool isDisabled = false;
+    bool isAiming = false;
+    bool isShooting = false;
 
     [Header("Game Management")]
     float reloadDelay = 3.0f;
@@ -51,28 +51,32 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if (!aliveState) { return; }
-        if (disabledState) { return; }
+        if (!isAlive) { return; }
+        if (isDisabled) { return; }
         Run();
         ClimbLadder();
         FlipSprite();
     }
 
     void OnFire(InputValue value) {
-        if (!aliveState) { return; }
-        // TakeAim();
-        TakeShot();
+        if (!isAlive) { return; }
+        myAnimator.SetBool("isShooting", true);
+        Invoke("TakeShot", 0.3f); // shooting's animation arrow release is at 0.3s
+        /*
+        there's no aiming here but
+        consider animation for aiming and animation for shooting next time
+        */
     }
 
     void OnMove(InputValue value)
     {
-        if (!aliveState) { return; }
+        if (!isAlive) { return; }
         moveInput = value.Get<Vector2>();
     }
 
     void OnJump(InputValue value)
     {
-        if (!aliveState) { return; }
+        if (!isAlive) { return; }
         if (!IsTouchingGround()) { return; }
 
         if (value.isPressed)
@@ -83,25 +87,23 @@ public class PlayerMovement : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D other)
     {
-        if (!aliveState) { return; }
-        if (!damagedState && IsTouchingDamage())
+        if (!isAlive) { return; }
+        if (!isDamaged && IsTouchingDamage())
         {
             DamageRecoil(other.gameObject);
             TakeDamage();
         }
     }
 
-    void TakeAim()
-    {
-        myAnimator.SetBool("isShooting", true);
-        myAnimator.enabled = false;
-    }
-
     void TakeShot()
     {
-        myAnimator.SetBool("isShooting", true);
-        myAnimator.enabled = true;
         Instantiate(bullet, gun.position, transform.rotation);
+        Invoke("StowWeapon", 0.417f);  // shooting's animation is 0.417s total
+    }
+
+    void StowWeapon()
+    {
+        myAnimator.SetBool("isShooting", false);
     }
 
     void DamageRecoil(GameObject gameObject)
@@ -125,8 +127,8 @@ public class PlayerMovement : MonoBehaviour
         hp--;
         if (hp > 0)
         {
-            StartCoroutine(SetTimerDamagedState(3.0f));
-            StartCoroutine(SetTimerDisabledState(0.5f));
+            StartCoroutine(SetTimerIsDamaged(3.0f));
+            StartCoroutine(SetTimerIsDisabled(0.5f));
             StartCoroutine(BlinkPlayer(9, 3.0f));
         }
         else
@@ -150,8 +152,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Die()
     {
-        aliveState = false;
-        disabledState = true;
+        isAlive = false;
+        isDisabled = true;
         myAnimator.SetTrigger("Dying");
         Invoke("ReloadScene", reloadDelay);
     }
@@ -172,22 +174,22 @@ public class PlayerMovement : MonoBehaviour
     void ClimbLadder()
     {
         // entry criteria: touching ladder, wasn't climbing beforehand, presses "up"
-        if (IsTouchingLadder() && !climbingState && (Mathf.Abs(moveInput.y) > Mathf.Epsilon))
+        if (IsTouchingLadder() && !isClimbing && (Mathf.Abs(moveInput.y) > Mathf.Epsilon))
         {
-            climbingState = true;
+            isClimbing = true;
             myRigidbody.gravityScale = 0f;
         }
         // exit criteria: was climbing beforehand, stops touching ladder
-        else if (!IsTouchingLadder() && climbingState)
+        else if (!IsTouchingLadder() && isClimbing)
         {
-            climbingState = false;
+            isClimbing = false;
             myRigidbody.gravityScale = defaultGravityScale;
         }
 
-        myAnimator.SetBool("isClimbing", climbingState);
-        Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMask.NameToLayer("Platform"), climbingState);
+        myAnimator.SetBool("isClimbing", isClimbing);
+        Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMask.NameToLayer("Platform"), isClimbing);
 
-        if (!climbingState) { return; }
+        if (!isClimbing) { return; }
 
         Vector2 playerVelocity = new Vector2 (moveInput.normalized.x, moveInput.normalized.y) * climbSpeed;
         myRigidbody.velocity = playerVelocity;
@@ -236,17 +238,17 @@ public class PlayerMovement : MonoBehaviour
         return myBodyCollider.IsTouchingLayers(damageLayers) || myFeetCollider.IsTouchingLayers(damageLayers);
     }
 
-    IEnumerator SetTimerDamagedState(float seconds)
+    IEnumerator SetTimerIsDamaged(float seconds)
     {
-        damagedState = true;
+        isDamaged = true;
         yield return new WaitForSeconds(seconds);
-        damagedState = false;
+        isDamaged = false;
     }
 
-    IEnumerator SetTimerDisabledState(float seconds)
+    IEnumerator SetTimerIsDisabled(float seconds)
     {
-        disabledState = true;
+        isDisabled = true;
         yield return new WaitForSeconds(seconds);
-        disabledState = false;
+        isDisabled = false;
     }
 }

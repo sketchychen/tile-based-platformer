@@ -7,6 +7,7 @@ TagManager:
   - Platform
   - Enemy
   - Bullet
+  - Exit
   layers:
   - Default
   - TransparentFX
@@ -22,7 +23,7 @@ TagManager:
   - Enemy
   - Hazard
   - Bullet
-  - 
+  - Interactable
   - 
   - 
   - 
@@ -55,6 +56,9 @@ TagManager:
     locked: 0
   - name: Platform
     uniqueID: 2617954025
+    locked: 0
+  - name: Exit
+    uniqueID: 1697897639
     locked: 0
   - name: Climbing
     uniqueID: 4039688043
