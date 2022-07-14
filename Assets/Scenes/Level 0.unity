@@ -9801,6 +9801,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.x
       value: -11.325695
       objectReference: {fileID: 0}
+    - target: {fileID: 6427283716673178494, guid: ab3d14b3e33cb45b3bdb3506a803b470, type: 3}
+      propertyPath: m_DeadZoneWidth
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6427283716886286010, guid: ab3d14b3e33cb45b3bdb3506a803b470, type: 3}
       propertyPath: m_BoundingShape2D
       value: 
