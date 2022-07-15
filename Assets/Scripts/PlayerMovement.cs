@@ -61,7 +61,7 @@ public class PlayerMovement : MonoBehaviour
     void OnFire(InputValue value) {
         if (!isAlive) { return; }
         myAnimator.SetBool("isShooting", true);
-        Invoke("TakeShot", 0.3f); // shooting's animation arrow release is at 0.3s
+        // Invoke("TakeShot", 0.3f); // shooting's animation arrow release is at 0.3s
         /*
         there's no aiming here but
         consider animation for aiming and animation for shooting next time
@@ -160,7 +160,7 @@ public class PlayerMovement : MonoBehaviour
 
     void ReloadScene()
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     void Run()

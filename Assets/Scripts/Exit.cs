@@ -5,22 +5,13 @@ using UnityEngine.SceneManagement;
 
 public class Exit : MonoBehaviour
 {
-    Scene currentScene;
-    // Start is called before the first frame update
-    void Start()
-    {
-        currentScene = SceneManager.GetActiveScene();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
+    float loadDelay = 3.0f;
+    bool isActivated = false;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("Exit triggered!");
+        if (isActivated) { return; }
+        isActivated = true;
         StartCoroutine(LoadNextLevel());
     }
 
@@ -30,8 +21,15 @@ public class Exit : MonoBehaviour
         Need to check for valid indexes!!!
         Is there another after this or is this the last one?
         */
-        int buildIndex = currentScene.buildIndex;
-        yield return new WaitForSeconds(3.0f);
-        SceneManager.LoadScene(buildIndex+1);
+        yield return new WaitForSecondsRealtime(loadDelay);
+        int currIndex = SceneManager.GetActiveScene().buildIndex;
+        int nextIndex = currIndex + 1;
+
+        if (nextIndex == SceneManager.sceneCountInBuildSettings)
+        {
+            nextIndex = 0;
+        }
+
+        SceneManager.LoadScene(nextIndex);
     }
 }

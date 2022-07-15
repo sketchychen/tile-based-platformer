@@ -9498,23 +9498,6 @@ CompositeCollider2D:
     m_Paths: []
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
---- !u!1 &1924315631 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6678303320113716086, guid: a42df0f6e42e343ab9159aab138bbe52, type: 3}
-  m_PrefabInstance: {fileID: 6358938071558700462}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1924315635
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1924315631}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b5741f832c5c423dbc08f89c7891550, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2007006105 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 753491021622457392, guid: ab11b99892e7e4d5cb7eefb252584c16, type: 3}
@@ -9803,7 +9786,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6427283716673178494, guid: ab3d14b3e33cb45b3bdb3506a803b470, type: 3}
       propertyPath: m_DeadZoneWidth
-      value: 0
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 6427283716886286010, guid: ab3d14b3e33cb45b3bdb3506a803b470, type: 3}
       propertyPath: m_BoundingShape2D
