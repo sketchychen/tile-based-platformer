@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -36,8 +35,6 @@ public class PlayerMovement : MonoBehaviour
     bool isAiming = false;
     bool isShooting = false;
 
-    [Header("Game Management")]
-    float reloadDelay = 3.0f;
 
 
     void Awake()
@@ -62,6 +59,7 @@ public class PlayerMovement : MonoBehaviour
         if (!isAlive) { return; }
         myAnimator.SetBool("isShooting", true);
         // Invoke("TakeShot", 0.3f); // shooting's animation arrow release is at 0.3s
+        TakeShot();
         /*
         there's no aiming here but
         consider animation for aiming and animation for shooting next time
@@ -91,7 +89,8 @@ public class PlayerMovement : MonoBehaviour
         if (!isDamaged && IsTouchingDamage())
         {
             DamageRecoil(other.gameObject);
-            TakeDamage();
+            // TakeDamage();
+            Die();
         }
     }
 
@@ -155,12 +154,7 @@ public class PlayerMovement : MonoBehaviour
         isAlive = false;
         isDisabled = true;
         myAnimator.SetTrigger("Dying");
-        Invoke("ReloadScene", reloadDelay);
-    }
-
-    void ReloadScene()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        FindObjectOfType<GameSession>().ProcessPlayerDeath();
     }
 
     void Run()

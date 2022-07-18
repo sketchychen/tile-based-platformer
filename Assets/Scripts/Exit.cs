@@ -11,8 +11,11 @@ public class Exit : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (isActivated) { return; }
-        isActivated = true;
-        StartCoroutine(LoadNextLevel());
+        if (other.CompareTag("Player"))
+        {
+            isActivated = true;
+            StartCoroutine(LoadNextLevel());
+        }
     }
 
     IEnumerator LoadNextLevel()
@@ -30,6 +33,7 @@ public class Exit : MonoBehaviour
             nextIndex = 0;
         }
 
+        FindObjectOfType<ScenePersist>().ResetScenePersist();
         SceneManager.LoadScene(nextIndex);
     }
 }
